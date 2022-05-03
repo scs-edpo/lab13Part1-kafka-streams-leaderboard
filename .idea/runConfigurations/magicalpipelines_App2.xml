@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="magicalpipelines.App2" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="magicalpipelines.App" />
+    <module name="lab13-kafka-streams-leaderboard" />
+    <option name="VM_PARAMETERS" value="-Dhost=localhost -Dport=7100 -DstateDir=/tmp/kafka-streams2" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
