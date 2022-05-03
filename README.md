@@ -54,14 +54,13 @@ $ kafka-console-producer \
 ```
 
 # Query the API
-This application exposes the video game leaderboard results using Kafka Streams interactive queries feature. The API is listening on port `7000`. Note the following examples use `jq` to prettify the output. If you don't have `jq` installed, either [install it][jq] or remove that part of the command.
-
-[jq]: https://stedolan.github.io/jq/download/
+This application exposes the video game leaderboard results using Kafka Streams interactive queries feature. The API is listening on port `7000`.
+You can call the API via the Terminal or, e.g., via PostMan.
 
 ### Get all leaderboard entries, grouped by game (i.e. _productId_)
 
 ```sh
-curl -s localhost:7000/leaderboard | jq '.'
+curl -s localhost:7000/leaderboard
 
 # example output (truncated)
 {
@@ -90,7 +89,7 @@ curl -s localhost:7000/leaderboard | jq '.'
 
 ### Get the leaderboard for a specific game (i.e. _productId_)
 ```sh
-curl -s localhost:7000/leaderboard/1 | jq '.'
+curl -s localhost:7000/leaderboard/1
 
 # example output
 [
