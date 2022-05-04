@@ -17,14 +17,17 @@ Now, to run the Kafka Streams application, first run:
 mvn clean install
 ```
 
-and then you can simply start the main class [App](/src/main/java/magicalpipelines/App.java) via your IDE or via:
+and then you can start the app via:
 
 ```
 mvn exec:java
 ```
 
-We have also provided two different run configurations for IntelliJ, which allow you to run two separate instances of the
-Leaderboard app.
+or via your IDE by running [App](/src/main/java/magicalpipelines/App.java). You have to provide
+the required system properties as *VM options* in the run configurations:
+
+-Dhost=localhost -Dport=7000 -DstateDir=/tmp/kafka-streams
+
 
 # Producing Test Data
 Once your application is running, you can produce some test data to see it in action. Since our video game leaderboard application reads from multiple topics (`players`, `products`, and `score-events`), we have saved example records for each topic in the `data/` directory. To produce data into each of these topics, open a new tab in your shell and run the following commands.

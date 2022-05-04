@@ -12,7 +12,8 @@ public class App {
 
     // we allow the following system properties to be overridden,
     // which allows us to run multiple instances of our app.
-    // see the `magicalpipelines.App1` and `magicalpipelines.App2` run configurations for IntelliJ
+    // When running directly via IntelliJ, set additional parameters for the run configuration
+    // VM Options: -Dhost=localhost -Dport=7000 -DstateDir=/tmp/kafka-streams
     String host = System.getProperty("host");
     Integer port = Integer.parseInt(System.getProperty("port"));
     String stateDir = System.getProperty("stateDir");
