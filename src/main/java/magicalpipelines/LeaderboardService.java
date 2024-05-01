@@ -10,15 +10,11 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.streams.KafkaStreams;
-import org.apache.kafka.streams.KeyQueryMetadata;
-import org.apache.kafka.streams.KeyValue;
-import org.apache.kafka.streams.StoreQueryParameters;
+import org.apache.kafka.streams.*;
 import org.apache.kafka.streams.state.HostInfo;
 import org.apache.kafka.streams.state.KeyValueIterator;
 import org.apache.kafka.streams.state.QueryableStoreTypes;
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
-import org.apache.kafka.streams.state.StreamsMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,7 +95,7 @@ class LeaderboardService {
   void getCount(Context ctx) {
     long count = getStore().approximateNumEntries();
 
-    for (StreamsMetadata metadata : streams.allMetadataForStore("leader-boards")) {
+    for (StreamsMetadata metadata : streams.streamsMetadataForStore("leader-boards")) {
       if (!hostInfo.equals(metadata.hostInfo())) {
         continue;
       }
