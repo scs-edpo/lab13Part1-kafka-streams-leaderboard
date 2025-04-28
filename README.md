@@ -8,7 +8,7 @@ This code corresponds with Chapter 4 in the O'Reilly book: [Mastering Kafka Stre
 You can start the local Kafka cluster using the following command:
 
 ```sh
-$ docker-compose up
+$ docker compose up
 ```
 
 Now, to run the Kafka Streams application, first run:
@@ -30,11 +30,12 @@ the required system properties as *VM options* in the run configurations:
 
 
 # Producing Test Data
-Once your application is running, you can produce some test data to see it in action. Since our video game leaderboard application reads from multiple topics (`players`, `products`, and `score-events`), we have saved example records for each topic in the `data/` directory. To produce data into each of these topics, open a new tab in your shell and run the following commands.
+Before running the application, you should produce some test data to make sure that the Kafka topics have been created successfully and already contain some messages. 
+Since our video game leaderboard application reads from multiple topics (`players`, `products`, and `score-events`), we have saved example records for each topic in the `data/` directory. To produce data into each of these topics, open a new tab in your shell and run the following commands.
 
 ```sh
 # log into the broker, which is where the kafka console scripts live
-$ docker-compose exec kafka bash
+$ docker compose exec kafka bash
 
 # produce test data to players topic
 $ kafka-console-producer \
