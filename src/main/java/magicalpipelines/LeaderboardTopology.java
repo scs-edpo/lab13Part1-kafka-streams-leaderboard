@@ -41,39 +41,47 @@ class LeaderboardTopology {
     // create the sharded players table
     KTable<String, Player> players =
         builder.table("players", Consumed.with(Serdes.String(), JsonSerdes.Player()));
+
     // create the global product table
     GlobalKTable<String, Product> products =
         builder.globalTable("products", Consumed.with(Serdes.String(), JsonSerdes.Product()));
 
-    // join params for scoreEvents -> players join
+    // serdes and types for joining score events with players. 
     Joined<String, ScoreEvent, Player> playerJoinParams =
         Joined.with(Serdes.String(), JsonSerdes.ScoreEvent(), JsonSerdes.Player());
 
-    // join scoreEvents -> players
+    // combine a score event and its matching player into one object.
     ValueJoiner<ScoreEvent, Player, ScoreWithPlayer> scorePlayerJoiner =
         (score, player) -> new ScoreWithPlayer(score, player);
+
+    // Join score events with players by key. 
     KStream<String, ScoreWithPlayer> withPlayers =
         scoreEvents.join(players, scorePlayerJoiner, playerJoinParams);
 
-    /**
-     * map score-with-player records to products
-     *
-     * <p>Regarding the KeyValueMapper param types: - String is the key type for the score events
-     * stream - ScoreWithPlayer is the value type for the score events stream - String is the lookup
-     * key type
-     */
+
+
+
+
+    // Extract the product id to look up the matching product.
     KeyValueMapper<String, ScoreWithPlayer, String> keyMapper =
         (leftKey, scoreWithPlayer) -> {
           return String.valueOf(scoreWithPlayer.getScoreEvent().getProductId());
         };
 
-    // join the withPlayers stream to the product global ktable
+    // Combine the stream record with the matching product into one object.
     ValueJoiner<ScoreWithPlayer, Product, Enriched> productJoiner =
         (scoreWithPlayer, product) -> new Enriched(scoreWithPlayer, product);
+
+    // Join each record with the product found by product id.
     KStream<String, Enriched> withProducts = withPlayers.join(products, keyMapper, productJoiner);
+
+    // Print the enriched records for debugging.
     withProducts.print(Printed.<String, Enriched>toSysOut().withLabel("with-products"));
 
-    /** Group the enriched product stream */
+
+
+    
+    // Regroup the stream by product id so each product gets its own leaderboard.
     KGroupedStream<String, Enriched> grouped =
         withProducts.groupBy(
             (key, value) -> value.getProductId().toString(),
@@ -81,25 +89,25 @@ class LeaderboardTopology {
     // alternatively, use the following if you want to name the grouped repartition topic:
     // Grouped.with("grouped-enriched", Serdes.String(), JsonSerdes.Enriched()))
 
-    /** The initial value of our aggregation will be a new HighScores instances */
+    // Start each product's aggregate with an empty HighScores object.
     Initializer<HighScores> highScoresInitializer = HighScores::new;
 
-    /** The logic for aggregating high scores is implemented in the HighScores.add method */
+    // Update the aggregate whenever a new enriched score arrives for that product.
     Aggregator<String, Enriched, HighScores> highScoresAdder =
         (key, value, aggregate) -> aggregate.add(value);
 
-    /** Perform the aggregation, and materialize the underlying state store for querying */
+    // Build a KTable where each product id maps to its current leaderboard.
     KTable<String, HighScores> highScores =
         grouped.aggregate(
             highScoresInitializer,
             highScoresAdder,
             Materialized.<String, HighScores, KeyValueStore<Bytes, byte[]>>
-                // give the state store an explicit name to make it available for interactive
-                // queries
+                // Store the aggregate in a named state store for interactive queries.
                 as("leader-boards")
                 .withKeySerde(Serdes.String())
                 .withValueSerde(JsonSerdes.HighScores()));
 
+    // Publish the latest leaderboard updates to the output topic.
     highScores.toStream().to("high-scores");
 
     return builder.build();
