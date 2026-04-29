@@ -26,7 +26,7 @@ mvn exec:java
 or via your IDE by running [App](/src/main/java/magicalpipelines/App.java). You have to provide
 the required system properties as *VM options* in the run configurations:
 
--Dhost=localhost -Dport=7000 -DstateDir=/tmp/kafka-streams
+-Dhost=localhost -Dport=7001 -DstateDir=/tmp/kafka-streams
 
 
 # Producing Test Data
@@ -41,15 +41,15 @@ $ docker compose exec kafka bash
 $ kafka-console-producer \
   --bootstrap-server kafka:9092 \
   --topic players \
-  --property 'parse.key=true' \
-  --property 'key.separator=|' < players.json
+  --reader-property 'parse.key=true' \
+  --reader-property 'key.separator=|' < players.json
 
 # produce test data to products topic
 $ kafka-console-producer \
   --bootstrap-server kafka:9092 \
   --topic products \
-  --property 'parse.key=true' \
-  --property 'key.separator=|' < products.json
+  --reader-property 'parse.key=true' \
+  --reader-property 'key.separator=|' < products.json
 
 # produce test data to score-events topic
 $ kafka-console-producer \
@@ -58,13 +58,13 @@ $ kafka-console-producer \
 ```
 
 # Query the API
-This application exposes the video game leaderboard results using Kafka Streams interactive queries feature. The API is listening on port `7000`.
+This application exposes the video game leaderboard results using Kafka Streams interactive queries feature. The API is listening on port `7001`.
 You can call the API via the Terminal or, e.g., via PostMan.
 
 ### Get all leaderboard entries, grouped by game (i.e. _productId_)
 
 ```sh
-curl -s localhost:7000/leaderboard
+curl -s localhost:7001/leaderboard
 
 # example output (truncated)
 {
@@ -93,7 +93,7 @@ curl -s localhost:7000/leaderboard
 
 ### Get the leaderboard for a specific game (i.e. _productId_)
 ```sh
-curl -s localhost:7000/leaderboard/1
+curl -s localhost:7001/leaderboard/1
 
 # example output
 [
